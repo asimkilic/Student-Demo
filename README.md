@@ -502,3 +502,22 @@ public class Student {
 ```
 
 now that we've mapped this student class to a table in our  database next let's go ahead start the application and see what is happening under the hood.
+
+So in the logging ;    
+
+    Hibernate: create sequence student_sequence start 1 increment 1
+    Hibernate: 
+    create table student (
+       id int8 not null,
+        age int4,
+        date_of_birth date,
+        email varchar(255),
+        name varchar(255),
+        primary key (id)
+    )
+
+Now I'm going to connect from IntelliJ to database 
+
+![image-20211228014427942](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014427942.png)
+
+![image-20211228014555773](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014555773.png)
