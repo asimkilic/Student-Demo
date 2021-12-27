@@ -285,7 +285,7 @@ Inside of student create a new class which named StudentController this class wh
 public class StudentController {
     
     @GetMapping
-    public List<Student> hello() {
+    public List<Student> getStudents() {
         return List.of(
                 new Student(1L,
                         "Asım",
@@ -317,4 +317,188 @@ The api working but now things are much  more organized. Next let's go ahead and
 
 
 
-Api layer should talk to the service layer to get some data and service layer should also talk to the data access layer
+Api layer should talk to the service layer to get some data and service layer should also talk to the data access layer to get a data so it does a round trip . Client > Api > Service > Data Access and then all the way back.
+
+Now let's move getStudents method from Controller to the Service Layer. So Service Layer is mainly responsible for business logic so we're going to create a new class and then call it StudentService.
+
+What we going to do is we're going to take getStudents method and then put it inside of Service 
+
+```java
+
+public class StudentService {
+    public List<Student> getStudents() {
+        return List.of(
+                new Student(1L,
+                        "Asım",
+                        "asim@asimkilic.com",
+                        LocalDate.of(2001, Month.JANUARY, 1),
+                        20)
+        );
+    }
+}
+
+```
+
+and we can go back go controller and here that returns no longer be and instead we have to use the method inside of our student service. Let's have a reference first 
+
+```java 
+private final StudentService studentService;
+```
+
+and add it to the constructor. And now we can say return studentService.getStudents() in controller.
+
+```java
+@RestController
+@RequestMapping(path="/api/v1/students")
+public class StudentController {
+    private final StudentService studentService;
+
+ 
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
+    @GetMapping
+    public List<Student> getStudents() {
+        return studentService.getStudents();
+    }
+}
+
+```
+
+This now is a  much better approach. But ideally list is a static list which is in getStudents method in StudentService. We also want this to come from a database but we're going to worry about that in a second. Next let us go ahead and learn about some annotations and dependency injection within spring and spring boot. 
+
+### Dependency Injection
+
+In StudentController we are having a reference to StudentService, this is not going to work because we don't have an instance of StudentService . Now the way that this would work is  If i was to say equals to new StudentService() like below.
+
+```java
+private final StudentService studentService;
+public StudentController(StudentService studentService){
+    this.studentService=new StudentService();
+}
+```
+
+Now this will work but when writing code we should avoid stuff like this  and use dependency injection as much as possible. So how do we tell that this StudentService should be injected into that constructor there or anything that we pass into that constructor should be injected. Well we have annotation called **@Autowired**  now we are saying that this StudentService should be autowired for us. So field StudentService is will be magically instantiated for us and then injected into that consturctor and then all of those are work, but now we have to also tell that StudentService is a class that has to be instantiated. It has to be a spring bean.
+
+```java
+@RestController
+@RequestMapping(path="/api/v1/students")
+public class StudentController {
+    private final StudentService studentService;
+
+    @Autowired
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
+    @GetMapping
+    public List<Student> getStudents() {
+        return studentService.getStudents();
+    }
+}
+
+```
+
+We can use **@Component**  annotation after that when you go back to controller and you should see that studentService doesnt have red underline any more.
+
+```java
+@Component
+public class StudentService {
+    
+    public List<Student> getStudents() {
+        return List.of(
+                new Student(1L,
+                        "Asım",
+                        "asim@asimkilic.com",
+                        LocalDate.of(2001, Month.JANUARY,1),
+                        20)
+        );
+    }
+}
+
+```
+
+Now Controller know where to find that bean. We used **@Component** but spring we have annotations that allows us to be more specific so here we don't want this to be just a regular component but we want this  to be a service so instead of @Component we can use **@Service**.  @Component and @Service they are the exact same thing but @Service is more for semantics, more for readability. This class is meant to be a service class.
+
+Now we have API Layer talking successfully to the Service Layer  and the Service Layer is giving back some data back to the API Layer. Next let's focus on Data Access by connecting to a real database and then store the student inside of the database and then get it back out.
+
+### Properties file 
+
+Open up the **application.properties** in resources folder and write these configurations for database;
+
+```xml
+spring.datasource.url=jdbc:postgresql://localhost:5432/student
+spring.datasource.username=postgres
+spring.datasource.password=12345
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+this is the configuration that we need in order to connect to a database.
+
+If you are using Mac easiest way for you to download and install Postgres on  a MAC is by installing [Postgres.app ](https://postgresapp.com)
+
+So once you have postgres installed we have to create a database and that's what we're going to do next.
+
+Open the terminal and run the command then it will ask you to password for user
+
+```power
+PS C:\Users\ofn2nvu> psql -U postgres
+password for user postgres:
+```
+
+then create a database with SQL command 
+
+```powershell
+postgres=# CREATE DATABASE student;
+CREATE DATABASE
+postgres=#
+```
+
+If you have user which doesnt have priviliges for all database let him.
+
+```power
+postgres=# GRANT ALL PRIVILEGES ON DATABASE "student" TO username
+```
+
+```powershell
+postgres=# GRANT ALL PRIVILEGES ON DATABASE "student" TO postgres;
+GRANT
+postgres=# \l
+```
+
+Now let's open up IntelliJ and Pom.xml, we commented out dependency of Jpa, I'm going to uncomment and then right click Pom.xml then Maven and Reload Project. Now we can start the application. There we go so we actually connected to our database. You can see the logs. But we dont have any tables yet in our database and thats what I'm going to show you how to do next.
+
+### JPA and @Entity
+
+Now we want to do is to take Student class and use spring data jpa to create table inside of our database that we can that then add, delete and basically perform all of the crud operations against our database so to do that is very straightforward with spring boot and spring data jpa. 
+
+Open the Student class and map this Student to our database simply type **@Entity** and then say **@Table** .
+
+Entity is for hibernate and Table is for the table in our database we also need to say add **@Id**   and then here we're going to generate a sequence with allocation size.
+
+```java
+@Entity
+@Table
+public class Student {
+    @Id
+    @SequenceGenerator(
+            name="student_sequence",
+            sequenceName = "student_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "student_sequence"
+    )
+    private Long id;
+    private String name;
+    private String email;
+    private LocalDate dateOfBirth;
+    private Integer age;
+```
+
+now that we've mapped this student class to a table in our  database next let's go ahead start the application and see what is happening under the hood.
