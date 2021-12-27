@@ -521,3 +521,66 @@ Now I'm going to connect from IntelliJ to database
 ![image-20211228014427942](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014427942.png)
 
 ![image-20211228014555773](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014555773.png)
+
+Apply and OK then we can see our database and tables with columns
+
+![image-20211228014723447](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014723447.png)
+
+Also we can see in powershell as well
+
+```powershel
+                Nesnelerin listesi
+  Ìema  |       Ad²        | Veri tipi |  Sahibi
+--------+------------------+-----------+----------
+ public | student          | tablo     | postgres
+ public | student_sequence | sequence  | postgres
+(2 sat²r)
+
+
+student=# \d student
+                                      Tablo "public.student"
+     Kolon     |       Veri tipi        | S²ralama (collation) | Bo■ (null) olabilir | Varsay²lan
+---------------+------------------------+----------------------+---------------------+------------
+ id            | bigint                 |                      | not null            |
+ age           | integer                |                      |                     |
+ date_of_birth | date                   |                      |                     |
+ email         | character varying(255) |                      |                     |
+ name          | character varying(255) |                      |                     |
+¦ndeksler:
+    "student_pkey" PRIMARY KEY, btree (id)
+
+
+student=#
+```
+
+what we are missing now, Data Access Layer. So I'm going to create a interface inside the student package which is StudentRepository, then extend it with JpaRepository<>. JpaRepository would want generic type first one is which Entity would we work and second one is what type is that's Id. And add **@Repository** annotation to the interface.
+
+```java
+@Repository
+public interface StudentRepository extends JpaRepository<Student,Long> {
+}
+
+```
+
+We want to use this interface inside of our service. So in  StudentService instead of having a static list. We declare
+
+```java
+private final StudentRepository studentRepository;
+
+```
+
+then we want to add this to the constructor and then let's also annotate the constructor  with @Autowired
+
+ ```java
+ @Component
+ public class StudentService {
+ private final StudentRepository studentRepository;
+ 
+     @Autowired
+     public StudentService(StudentRepository studentRepository) {
+         this.studentRepository = studentRepository;
+     }
+ 
+ ```
+
+In the getStudents method if you write *studentRepository.* you will have bunch of methods there, we have find all we can pass the sorting if you want by id we can save...and you can see a bunch of methods and to be fair we haven't implemented any of these and this is the magic of Spring  Data Jpa, so there we're going to say *findAll()* this returns a list to us 
