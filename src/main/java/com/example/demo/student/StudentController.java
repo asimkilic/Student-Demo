@@ -13,7 +13,7 @@ import java.util.List;
 public class StudentController {
 
     @GetMapping
-    public List<Student> hello() {
+    public List<Student> getStudents() {
         return List.of(
                 new Student(1L,
                         "Asım",

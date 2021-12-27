@@ -277,5 +277,44 @@ we have an array of and then objects so our class was converted into a Json obje
 
 Now is a perfect time for us to get things done in the proper way so we want to structure our application into this n-tier architechure where we have the API layer, Service layer and then Data Access. We already have the class student let's go ahead and create a class that will serve as the api layer. 
 
-Inside of student create a new class which named StudentController this class which will have all of the resources for our api. What we're going to do is remove *@RestController* annotation from DemoApplication, also cut hello method. and remove all of those unuse imports  So DemoApplication would as be first time like we see. Go back to our StudentController and annotate with **@RestContoller** also we want is to say that this will have a **@RequestMapping**  thus we can pass the path over there and paste that hello metod inside the controller. Instead of hello I'm going to say getStudents, now we have get mapping for our StudentController. Let's start the application .
+Inside of student create a new class which named StudentController this class which will have all of the resources for our api. What we're going to do is remove *@RestController* annotation from DemoApplication, also cut hello method. and remove all of those unuse imports  So DemoApplication would as be first time like we see. Go back to our StudentController and annotate with **@RestContoller** also we want is to say that this will have a **@RequestMapping**  thus we can pass the path over there and paste that hello metod inside the controller. Instead of hello I'm going to say getStudents, now we have get mapping for our StudentController. Let's start the application. 
 
+```java
+@RestController
+@RequestMapping(path="/api/v1/students")
+public class StudentController {
+    
+    @GetMapping
+    public List<Student> hello() {
+        return List.of(
+                new Student(1L,
+                        "Asım",
+                        "asim@asimkilic.com",
+                        LocalDate.of(2001, Month.JANUARY,1),
+                        20)
+        );
+    }
+}
+```
+
+Go back to browser and go to http://localhost:8080/api/v1/students.
+
+```json
+[
+	{
+         "id":1,
+         "name":"Asım",
+         "email":"asim@asimkilic.com",
+         "dateOfBirth":"2001-01-01",
+         "age":20
+    }
+]
+```
+
+The api working but now things are much  more organized. Next let's go ahead and create a class that will serve as the business logic for managing students 
+
+### Business Layer
+
+
+
+Api layer should talk to the service layer to get some data and service layer should also talk to the data access layer
