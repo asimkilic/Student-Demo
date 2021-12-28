@@ -19,9 +19,4 @@ private final StudentRepository studentRepository;
         return studentRepository.findAll();
     }
 }
-/*
-  new Student(1L,
-          "Asım",
-          "asim@asimkilic.com",
-          LocalDate.of(2001, Month.JANUARY,1),
-          20)*/
+

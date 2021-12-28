@@ -583,4 +583,48 @@ then we want to add this to the constructor and then let's also annotate the con
  
  ```
 
-In the getStudents method if you write *studentRepository.* you will have bunch of methods there, we have find all we can pass the sorting if you want by id we can save...and you can see a bunch of methods and to be fair we haven't implemented any of these and this is the magic of Spring  Data Jpa, so there we're going to say *findAll()* this returns a list to us 
+In the getStudents method if you write *studentRepository.* you will have bunch of methods there, we have find all we can pass the sorting if you want by id we can save...and you can see a bunch of methods and to be fair we haven't implemented any of these and this is the magic of Spring  Data Jpa, so there we're going to say *findAll()* this returns a list to us.
+
+## Saving Students
+
+Now I'm going to create a new class which named StudentConfig and annotate it with **@Configuration** and in there we want to have Bean. So this bean runs and access to our repository. 
+
+```java
+@Configuration
+public class StudentConfig {
+    @Bean
+    CommandLineRunner commandLineRunner(StudentRepository repository) {
+        return args -> {
+
+            Student asim = new Student(
+                    "Asım",
+                    "asim@asimkilic.com",
+                    LocalDate.of(2001, Month.JANUARY, 1),
+                    20);
+            Student abdullah = new Student(
+                    "Abdullah",
+                    "abdullah@abdullah.com",
+                    LocalDate.of(2004, Month.JANUARY, 1),
+                    21);
+            repository.saveAll(List.of(asim, abdullah));
+        };
+    }
+}
+
+```
+
+It will execute SQL command for save when we start the application.
+
+## @Transient
+
+Before we implement the post method that will allows us to save new students into our database. I want to do is take care of  age basically i don't want age to be stores in our database because we can calculate that based of the date of birth.
+
+In the Student class mark Age field as **@Transient** this annotation basically do there is no need for you to be a column in our database so which means that age will be calculated for us, remove age also in constructors then calculate the age in the getAge()
+
+```java
+ public Integer getAge() {
+return 
+    Period.between(this.dateOfBirth, LocalDate.now()).getYears();
+  }
+```
+
