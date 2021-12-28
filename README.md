@@ -628,3 +628,50 @@ return
   }
 ```
 
+## @PostMapping
+
+For our post request we want to send data to our server and we want to check whether the email exists if it does not then we save the student to our database  if the email is taken  we want to throw an exception.
+
+Inside of StudentController let's implement the Post method. Post is used when you want to add new resources to your system in our case we  want to add a new student.
+
+So the Json which is coming from client we want to map that into the Student by taking it from the **@RequestBody** 
+
+```java
+@PostMapping
+    public void registerNewStudent(@RequestBody Student student){
+        studentService.saveNewStudent(student);
+    }
+```
+
+There is no saveNewStudent method in StudentService thus  focus saveNewsSudent and then press ALT + Enter and select create method for us or basically you can go to StudentService and add method this method manually.
+
+```java
+ public void saveNewStudent(Student student) {
+
+    }
+```
+
+In StudentService we can perform some business logic and what we want first is to open up the repository and we want to have a custom function here that will find a user by email.
+
+```java
+@Repository
+public interface StudentRepository extends JpaRepository<Student,Long> {
+    
+    Optional<Student> findStudentByEmail(String email);
+}
+
+```
+
+then in the StudentService
+
+```java
+   public void saveNewStudent(Student student) {
+        Optional<Student> studentOptional = studentRepository.findStudentByEmail(student.getEmail());
+        if (studentOptional.isPresent()) {
+            throw new IllegalStateException("email taken");
+        }
+        studentRepository.save(student);
+    }
+```
+
+It will check email is taken or not, then if it doesn't then it will save or throw an exception
