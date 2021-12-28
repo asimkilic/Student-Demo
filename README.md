@@ -675,3 +675,34 @@ then in the StudentService
 ```
 
 It will check email is taken or not, then if it doesn't then it will save or throw an exception
+
+If we want to see error messages in the response body we have to add some configuration in application.properties.
+
+```json
+server.error.include-message=always
+```
+
+## Delete Student
+
+In StudentController
+
+```java
+    @DeleteMapping(path = "{studentId}")
+    public void deleteStudent(@PathVariable("studentId") Long studentId){
+    studentService.deleteStudent(studentId);
+    }
+```
+
+In StudentService first we have to check is it exist or not then delete it.
+
+```java
+    public void deleteStudent(Long studentId) {
+        boolean exists = studentRepository.existsById(studentId);
+        if (!exists) {
+            throw new IllegalStateException("student with id " + studentId
+                    + " does not exists");
+        }
+        studentRepository.deleteById(studentId);
+    }
+```
+
