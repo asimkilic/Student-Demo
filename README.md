@@ -706,3 +706,49 @@ In StudentService first we have to check is it exist or not then delete it.
     }
 ```
 
+Put is used when you want to update a resource in your system in our case we want to update name and email so for this exercise what I'm going to do is to have a method like 
+
+```java
+@Transactional
+public void updateStudent
+```
+
+### @Transactional
+
+in your service class and then use **@Transactional** annotation which we haven't learned about it but by using this annotation, it means that you don't have to implement any jpql query so you can use the setters from your entity that you get back to check whether you can or cannot update and then you can use the setters to automatically update the entity in your database again use the setters to update the entity when it's possible. So go ahead and try and write some business logic for this exercise.
+
+We added this method in Controller
+
+```java
+
+    @PutMapping(path="{studentId}")
+    public void updateStudent(
+            @PathVariable("studentId") Long studentId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email){
+        studentService.updateStudent(studentId,name,email);
+    }
+```
+
+In Service
+
+```java
+  @Transactional
+    public void updateStudent(Long studentId, String name, String email) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new IllegalStateException(
+                "student with id " + studentId + " does not exists"
+        ));
+        if (name != null && name.length() > 0 && !Objects.equals(student.getName(), name)) {
+            student.setName(name);
+        }
+        if (email != null && email.length() > 0 && !Objects.equals(student.getEmail(), email)) {
+            Optional<Student> studentOptional = studentRepository.findStudentByEmail(email);
+            if (studentOptional.isPresent()) {
+                throw new IllegalStateException("email taken");
+            }
+            student.setEmail(email);
+        }
+    }
+```
+
+We write there some business logic but we didnt use any Repository methods nevertheless it works because of **@Transaction**, setters save automatically.
