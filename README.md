@@ -6,7 +6,7 @@ I said spring boot is an amazing framework that gives you everything you need in
 
 For this project, we 're going to build entire application **as showed  in below** excluding the front end part. We can have the API, so the API will receive  GET, POST, PUT  and DELETE request and then we have a service layer this is mainly for business logic and then we'll have a data access layer and this layer is responsible for connecting to any database. We're going to use real database and we'll see how easy it is for us to implement all of this with spring boot.
 
-![image-20211227172246936](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211227172246936.png)
+![layers](sources/layers.jpg)
 
 
 
@@ -41,7 +41,7 @@ So **application.properties** where we configure all the properties for out appl
 
 Now open up the DemoApplication,let's actually run the application  and you should see run button or you can right click and then *Run 'DemoApplication'* 
 
-![image-20211227183415547](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211227183415547.png)
+![run-buttons](sources/run-buttons.png)
 
 This should fail because it will try to connect to a database 
 
@@ -132,17 +132,21 @@ and basically we did no  do anything and we get a Json array out of the box.  Ob
 
 We are going to create a class to model student and then we're going to give it some attributes and behaviours and then ultimately students will end up in database but for now let's just begin with a simple class represent a student and then implement the student based off everything in our diagram.
 
-![image-20211227222801285](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211227222801285.png)
+![image-20211227222801285](sources/layers.jpg)
 
 ## Student Class
 
 Let's take this student right above represent it in a class so that we can start building entire API
 
-![image-20211227222838264](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211227222838264.png)
+* id
+* name
+* email
+* dateOfBirth
+* age
 
 Go back to IntelliJ, first thing we are going to do here is to create package so here I'm going to create package I'm going to name this as student, inside of this package we have to pull every code which is student related so here we need to have the Student class so this will be our model 
 
-![image-20211227223238991](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211227223238991.png)
+![image-20211227223238991](sources/solution-explorer.png)
 
 Now let's go ahead and define attributes and generate the getters and setters and constructors 
 
@@ -518,13 +522,13 @@ So in the logging ;
 
 Now I'm going to connect from IntelliJ to database 
 
-![image-20211228014427942](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014427942.png)
+![image-20211228014427942](sources/database-tab.png)
 
-![image-20211228014555773](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014555773.png)
+![image-20211228014555773](sources/database-tab-2.png)
 
 Apply and OK then we can see our database and tables with columns
 
-![image-20211228014723447](C:\Users\ofn2nvu\AppData\Roaming\Typora\typora-user-images\image-20211228014723447.png)
+![image-20211228014723447](sources/database-tab-3.png)
 
 Also we can see in powershell as well
 
@@ -752,3 +756,36 @@ In Service
 ```
 
 We write there some business logic but we didnt use any Repository methods nevertheless it works because of **@Transaction**, setters save automatically.
+
+### Packaging and Running Application
+
+Now let's go ahead and learn how to take our API produce a jar that we can run multiple instances of our application. Let's go back to IntelliJ and if you see target folder in solution delete it.
+
+Once you deleted open up maven tab and then you can clean the project first this will get rid of the target folder and then install the application and make sure your database is up and running so install and this will validate, compile, test, package, verify, and then inside we're going to have the jar file which we can  then run manually. Then we would have the target folder now inside of this target folder if we expand this we can see that we have demo and basically ....SNAPSHOT.jar   so this is what we are insterested in let's open up the terminal in IntelliJ and then you can see that i'm inside of demo so i can navigate the target 
+
+```powershel
+PS C:\Users\ofn2nvu\IdeaProjects\demo> cd target/
+PS C:\Users\ofn2nvu\IdeaProjects\demo\target> 
+
+```
+
+now we can run our application from here then I'm going to say 
+
+```powershell
+PS C:\Users\ofn2nvu\IdeaProjects\demo\target> java -jar .\demo-0.0.1-SNAPSHOT.jar
+
+
+```
+
+and then basically the application now is up and running so which means that i can navigate to localhost so if I open up my web browser http://localhost:8080/api/v1/student we would see application is running correctly.
+
+Now we've run one instance if you want to run a different instance it is completely up to you and you can run as many as you want but you need to specify the port so. 
+
+If I press Ctrl + C it would shutdown the application and If you want to run for example the application on a different port just run the same command and then you can say **--server.port=8081** for example 
+
+```java
+PS C:\Users\ofn2nvu\IdeaProjects\demo\target> java -jar .\demo-0.0.1-SNAPSHOT.jar --server.port=8081
+
+```
+
+there you have it. Now know how to package up your application and then from a jar spin up and instance that contains your application basically from now on you can basically take the jar you can deploy it to a server or you can dockerize it you can pretty much do anything you want with your jar file to deploy it for real users to use your application.
